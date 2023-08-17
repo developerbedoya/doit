@@ -9,6 +9,7 @@ public class Program
     private static string _commandPrompt;
     private static string _commandArguments;
     private static string _system;
+
     public static async Task Main(string[] args)
     {
         // Antes de executar este programa, colocar a chave de API no arquivo .openai
@@ -22,7 +23,7 @@ public class Program
         Console.WriteLine();
 
         DetectEnvironment();
-        
+
         while (true)
         {
             Console.Write("> ");
@@ -32,19 +33,33 @@ public class Program
             {
                 break;
             }
-            
+
             var mensagens = new List<Message>
             {
-                new Message(Role.System, $"You provide terminal prompts for ${_system} users. Respond with a ${_commandPrompt} command only on one line with no explanatory text."),
+                new Message(Role.System,
+                    $"You provide terminal prompts for ${_system} users. Respond with a ${_commandPrompt} command only on one line with no explanatory text."),
                 new Message(Role.User, desejo),
             };
-            
+
             var chatRequest = new ChatRequest(mensagens);
             var result = await api.ChatEndpoint.GetCompletionAsync(chatRequest);
 
             var comando = result.Choices.FirstOrDefault()?.Message;
-            Process.Start(_commandPrompt, string.Format(_commandArguments, comando));
+
+            if (Confirm(comando))
+            {
+                var program = Process.Start(_commandPrompt, string.Format(_commandArguments, comando));
+                program.WaitForExit();
+            }
         }
+    }
+
+    static bool Confirm(string command)
+    {
+        Console.Write($"Você deseja executar o comando '{command}'? [S]/n ");
+        var resposta = Console.ReadKey();
+        Console.WriteLine();
+        return resposta.Key == ConsoleKey.Enter || resposta.Key == ConsoleKey.S;
     }
 
     static void DetectEnvironment()
@@ -88,7 +103,7 @@ public class Program
             Environment.Exit(1);
         }
     }
-    
+
     static bool IsRpmBasedSystem()
     {
         // Check for RPM-related files or directories
