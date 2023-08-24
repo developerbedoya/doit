@@ -37,7 +37,8 @@ public class Program
             var mensagens = new List<Message>
             {
                 new Message(Role.System,
-                    $"You provide terminal prompts for ${_system} users. Respond with a ${_commandPrompt} command only on one line with no explanatory text."),
+                    $"You provide terminal prompts for ${_system} users. Respond with a ${_commandPrompt} " + 
+                    "command only on one line with no explanatory text."),
                 new Message(Role.User, desejo),
             };
 
